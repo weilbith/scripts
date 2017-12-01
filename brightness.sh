@@ -27,6 +27,9 @@ case "$1" in
             BRIGHTNESS=$(expr $BRIGHTNESS - $VALUE)
         fi;;
 
+    set)
+        BRIGHTNESS=$VALUE;;
+
     default)
         BRIGHTNESS=90;;
 
