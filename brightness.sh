@@ -6,16 +6,25 @@ FILE=$DIR/brightness
 MIN_BRIGHTNESS=0
 MAX_BRIGHTNESS=$(cat $DIR/max_brightness)
 BRIGHTNESS=$(cat $FILE)
+VALUE=100
 
+# If second argument contains a value, it will be handled as brightness value to adjust.
+if [ ! -z $2 ]
+then
+    VALUE=$2
+fi
+
+
+# Switch between the cases.
 case "$1" in
     up)
         if [ $BRIGHTNESS -lt $MAX_BRIGHTNESS ]; then
-            BRIGHTNESS=$(expr $BRIGHTNESS + 100)
+            BRIGHTNESS=$(expr $BRIGHTNESS + $VALUE)
         fi;;
 
     down)
         if [ $BRIGHTNESS -gt $MIN_BRIGHTNESS ]; then
-            BRIGHTNESS=$(expr $BRIGHTNESS - 100)
+            BRIGHTNESS=$(expr $BRIGHTNESS - $VALUE)
         fi;;
 
     default)
