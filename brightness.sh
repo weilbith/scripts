@@ -6,7 +6,7 @@ FILE=$DIR/brightness
 MIN_BRIGHTNESS=0
 MAX_BRIGHTNESS=$(cat $DIR/max_brightness)
 BRIGHTNESS=$(cat $FILE)
-VALUE=100
+VALUE=50
 
 # If second argument contains a value, it will be handled as brightness value to adjust.
 if [ ! -z $2 ]
