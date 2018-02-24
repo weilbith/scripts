@@ -9,7 +9,7 @@ SELECTED_FOREGROUND="#282a2e"
 
 
 # Define the DMenu with autofocus and case insensitive filter.
-DMENU="dmenu -i -l 5 -fn 'Calibri-10' -nb $DEFAULT_BACKGROUND -nf $DEFAULT_FOREGROUND -sb $SELECTED_BACKGROUND -sf $SELECTED_FOREGROUND"
+DMENU="dmenu -i -fn 'Calibri-10' -nb $DEFAULT_BACKGROUND -nf $DEFAULT_FOREGROUND -sb $SELECTED_BACKGROUND -sf $SELECTED_FOREGROUND -p Execute:"
 
 
 # Define the menu entries to select.
