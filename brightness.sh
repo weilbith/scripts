@@ -1,11 +1,11 @@
-
 #!/bin/bash
 
 DIR=/sys/class/backlight/intel_backlight
 FILE=$DIR/brightness
-MIN_BRIGHTNESS=0
+MIN_BRIGHTNESS=1 # Cause 0 is completetly black...
 MAX_BRIGHTNESS=$(cat $DIR/max_brightness)
 BRIGHTNESS=$(cat $FILE)
+OLD_BRIGHTNESS=$BRIGHTNESS
 VALUE=50
 
 # If second argument contains a value, it will be handled as brightness value to adjust.
@@ -18,13 +18,19 @@ fi
 # Switch between the cases.
 case "$1" in
     up)
-        if [ $BRIGHTNESS -lt $MAX_BRIGHTNESS ]; then
-            BRIGHTNESS=$(expr $BRIGHTNESS + $VALUE)
+        BRIGHTNESS=$(expr $BRIGHTNESS + $VALUE)
+       
+        # Increasing over the maximum not possible and do nothing, so set to maximum.
+        if [ $BRIGHTNESS -gt $MAX_BRIGHTNESS ]; then
+          BRIGHTNESS=$MAX_BRIGHTNESS
         fi;;
 
     down)
-        if [ $BRIGHTNESS -gt $MIN_BRIGHTNESS ]; then
-            BRIGHTNESS=$(expr $BRIGHTNESS - $VALUE)
+        BRIGHTNESS=$(expr $BRIGHTNESS - $VALUE)
+
+        # Decreasing under the minimum not possible and do nothing, so set to minimum.
+        if [ $BRIGHTNESS -lt $MIN_BRIGHTNESS ]; then
+          BRIGHTNESS=$MIN_BRIGHTNESS
         fi;;
 
     set)
@@ -38,5 +44,7 @@ case "$1" in
 
 esac
 
-echo "echo $BRIGHTNESS > $FILE" | sudo bash
-
+# Do nothing if brightness stay the same by this action (e.g. increase still after reach maximum.
+if [ $BRIGHTNESS -ne $OLD_BRIGHTNESS ] ; then 
+  echo "echo $BRIGHTNESS > $FILE" | sudo bash
+fi 
