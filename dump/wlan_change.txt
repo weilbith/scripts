@@ -1,7 +1,0 @@
-Hinzufügen der Option
-options iwlwifi 11n_disable=1
-
-im File
-/etc/modprobe.d/iwlwifi.conf
-
-
