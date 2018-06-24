@@ -7,7 +7,8 @@
 #   musicPreparator [-s] [source-path] [-d] [destination-path] [--skip]
 #
 # Arguments:
-#   -s [--source]       Path to the directory from where to start search recursive for music files.
+#   -s [--source]       Path to the directory/file as source to convert.
+#                       In case it is a directory, from there a search starts recursively for music files.
 #                       All found files will be added to the track list and processed by this.
 #
 #   -d [--destination]  Path to the directory where to build up (or continue to integrate) the new structure.
@@ -45,7 +46,7 @@
 IFS=' ' read -r -a ARG_VEC <<< "$@"
 
 # Adjustable configuration values.
-SRC_DIR=$(pwd) # The source directory where to start searching for music files.
+SRC=$(pwd) # The source directory where to start searching for music files.
 DST_DIR=$(pwd) # The destination directory where to place the converted music files. 
 
 # Fixed configuration values.
@@ -72,21 +73,31 @@ function createTrackList {
 
   # Create a new track list.
   else 
-    echo "Search for track files in the source..."
 
     # Remove an old track list file in case it should been skipped.
     rm -f "$TRACK_LIST_FILE"
 
-    # Insert a line per file that has been found.
-    while IFS= read -d $'\0' -r track
-    do
-      # Get the absolute path of the track.
-      local absolutePath=$(readlink -f "$track")
+    # Check if given source is a folder.
+    if [[ -d "$SRC" ]] ; then
+      echo "Search for track files in the source directory..."
+      # Insert a line per file that has been found.
+      while IFS= read -d $'\0' -r track
+      do
+        # Get the absolute path of the track.
+        local absolutePath=$(readlink -f "$track")
 
-      # Write the path to the track list file.
+        # Write the path to the track list file.
+        echo "$absolutePath" >> $TRACK_LIST_FILE
+
+      done < <(find "$SRC" -type f -print0)
+    
+    else
+      echo "Working on a single source file."
+      # Write absolute path into the track list file.
+      local absolutePath=$(readlink -f "$SRC")
       echo "$absolutePath" >> $TRACK_LIST_FILE
 
-    done < <(find "$SRC_DIR" -type f -print0)
+    fi
   fi
 }
 
@@ -271,7 +282,7 @@ function parseArguments {
     # The source folder.
     if [[ $arg == --source ]] || [[ $arg == -s ]] ; then
       local output=$(getPathArgumentValue $i+1)
-      SRC_DIR="${output#*:}" # Get the path argument.
+      SRC="${output#*:}" # Get the path argument.
       i=${output%:*} # Update the index depending on where the path has been ended.
 
     # The destination folder.
@@ -302,5 +313,5 @@ createTrackList
 processTracks
 
 # Tidy up
-rm -f "$TRACK_LIST_FILE" # Clear the track list after all entries have been handled.
+#rm -f "$TRACK_LIST_FILE" # Clear the track list after all entries have been handled.
 rm -f "$TMP_TRACK_FILE" # Remove the temporally track file in case something has went wrong.
