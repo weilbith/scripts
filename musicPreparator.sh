@@ -40,6 +40,10 @@
 #   Missing music tag informations are replaced by default values, so at least the conversion was successful.
 #   Local failures, like conversion problems, lead to skip the active selected music file.
 #
+# Problems:
+#   Defining a directory as source leads to some not estimated errors, I couldn't fixed so far.
+#   Therefore the usage of `find . --exec musicPreparator.sh -s {} ";"` is recommended.
+#
 
 
 # Create an array by the argument string.
@@ -313,5 +317,5 @@ createTrackList
 processTracks
 
 # Tidy up
-#rm -f "$TRACK_LIST_FILE" # Clear the track list after all entries have been handled.
+rm -f "$TRACK_LIST_FILE" # Clear the track list after all entries have been handled.
 rm -f "$TMP_TRACK_FILE" # Remove the temporally track file in case something has went wrong.
