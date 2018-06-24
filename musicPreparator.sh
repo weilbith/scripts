@@ -34,7 +34,7 @@
 #           |    ...
 #           |- ...
 #
-#   The script is resistent for fails and interruptions.
+#   The script is resistant for fails and interruptions.
 #   Therefore it creates a list of all music files in the source directory and store it into a temporally file.
 #   This file is placed into the current working directory and is only purged if the script ends successfully.
 #   Missing music tag informations are replaced by default values, so at least the conversion was successful.
@@ -48,6 +48,9 @@
 
 # Create an array by the argument string.
 IFS=' ' read -r -a ARG_VEC <<< "$@"
+
+# Arguments keys.
+ARGUMENT_KEYS=("-s" "--source" "-d" "--destination" "--skip")
 
 # Adjustable configuration values.
 SRC=$(pwd) # The source directory where to start searching for music files.
@@ -63,6 +66,30 @@ SKIP_TRACK_LIST=false # Also if a track file exists, ignore this and create a ne
 TITLE=""
 ARTIST=""
 ALBUM=""
+
+
+# Check if a given string is a known argument key.
+#
+# Arguments:
+#   $1 - string to check
+#
+# Returns:
+#   true  - if given sting is an argument key
+#   false - else
+#
+function isArgumentKey {
+  # Check for each known argument key.
+  for key in "${ARGUMENT_KEYS[@]}" ; do
+    # Compare this key with the given string.
+    if [[ "$key" == "$1" ]] ; then
+      echo true
+      return
+    fi
+  done
+
+  # No argument has match.
+  echo false
+}
 
 
 # Function to create a list of all tracks in a file.
@@ -249,24 +276,36 @@ function processTracks {
 #
 function getPathArgumentValue {
   local index=$1
+  local lastIndex=$((${#ARG_VEC[@]} - 1))
   local pathValue
   local finish=false
 
   while ! $finish ; do
-    # Expand the path value by the next (first) segment.
-    pathValue="$pathValue ${ARG_VEC[$index]}"
+    # Get the next segment in the argument vector.
+    local segment="${ARG_VEC[$index]}"
+    # Remove the backslashes, cause they lead to problems when further programs parsing as a path.
+    segment=$(echo "$segment" | sed 's/\\//g')
+  
+    # Check if this is already the next argument key.
+    if [[ $(isArgumentKey $segment) = 'false' ]] ; then
+      # Expand the path value by the next (first) segment.
+      pathValue="$pathValue ${segment}"
 
-    # Get the last characters, cause spaces in a path are marked by a backslash.
-    local lastChar=${pathValue:$((${#pathValue}-1))}
+      # End here if this was the last segment.
+      if [[ $index -eq $lastIndex ]] ; then
+        finish=true
+      fi
 
-    # Check if this was the last path segment or jump to the next segment.
-    [[ ! "$lastChar" = '\' ]] && finish=true || index=$(($index+1))
+      # Increase the index for the next segment.
+      index=$((index + 1))
+
+    else
+      finish=true
+    fi
   done 
 
-  # Remove the backslashes, cause they lead to problems when further programs parse this as a path.
-  pathValue=$(echo "$pathValue" | sed 's/\\//g')
-
-  # Return the current index and the path (mark that last one starts with a space).
+  # Return the last index and the path (mark that last one starts with a space).
+  index=$((index - 1))
   echo "$index:${pathValue:1}"
 }
 
@@ -279,19 +318,19 @@ function getPathArgumentValue {
 #   $1 - all arguments by the caller
 #
 function parseArguments {
-  for (( i=0; i<${#ARG_VEC[@]}; i++ ))
-  do
+  for (( i=0; i<${#ARG_VEC[@]}; i++ )) ; do
     arg="${ARG_VEC[i]}"
+    nextIndex=$((i + 1))
    
     # The source folder.
     if [[ $arg == --source ]] || [[ $arg == -s ]] ; then
-      local output=$(getPathArgumentValue $i+1)
+      local output=$(getPathArgumentValue $nextIndex)
       SRC="${output#*:}" # Get the path argument.
       i=${output%:*} # Update the index depending on where the path has been ended.
 
     # The destination folder.
     elif [[ $arg == --destination ]] || [[ $arg == -d ]] ; then
-      local output=$(getPathArgumentValue $i+1)
+      local output=$(getPathArgumentValue $nextIndex)
       DST_DIR="${output#*:}" # Get the path argument.
       i=${output%:*} # Update the index depending on where the path has been ended.
 
