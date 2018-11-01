@@ -18,6 +18,7 @@ DarkRed='#af0000'
 # Getting Started
 i3lock \
   --image $1 \
+  --tiling \
   --ignore-empty-password \
   --indicator \
   --clock \
