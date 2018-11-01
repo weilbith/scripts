@@ -26,9 +26,9 @@ i3lock \
   --keylayout=0 \
   --layoutcolor=${MediumBlue}ff \
   \
-  --timestr="%M:%H"  \
+  --timestr="%H:%M"  \
   --timecolor=${LightBlue}ff \
-  --datestr="%A, %m %Y" \
+  --datestr="%A, %d.%m.%Y" \
   --datecolor=${LightBlue}ff \
   \
   --radius=110 \
