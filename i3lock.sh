@@ -17,7 +17,8 @@ DarkRed='#af0000'
 
 # Getting Started
 i3lock \
-  --image $1 \
+  --nofork \
+  --image "$1" \
   --tiling \
   --ignore-empty-password \
   --indicator \
@@ -47,7 +48,7 @@ i3lock \
   --ringvercolor=${LightGreen}ff \
   \
   --wrongtext="Nope!" \
-  --noinputtext="" \
+  --noinputtext="Empty" \
   --insidewrongcolor=${LightRed}22 \
   --ringwrongcolor=${DarkRed}ff \
   --wrongcolor=${LightRed}ff
