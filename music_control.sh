@@ -35,10 +35,9 @@
 #   cmus - C* music player
 #
 
-
 # Notification
 NOTIFICATION_TOOL="notify-send"
-NOTIFICATION_HEADER="CMus Remote Control"
+NOTIFICATION_HEADER="Music Remote Control"
 
 # Command
 COMMAND_SELECTED=""
@@ -94,16 +93,15 @@ PLAYER_LIST=(
 # Arguments:
 #   $1 - notification message
 #
-function notify {
+function notify() {
   # Notify if possible.
   if [[ -n "$(command -v "$NOTIFICATION_TOOL")" ]]; then
     "$NOTIFICATION_TOOL" "$NOTIFICATION_HEADER" "$1"
   else
-    (>&2 echo "Not able to send notification by '$NOTIFICATION_TOOL'!")
+    (echo >&2 "Not able to send notification by '$NOTIFICATION_TOOL'!")
     echo "Notification: $1"
-  fi 
+  fi
 }
-
 
 # Report an error and exit the script.
 # The errors message get printed to stderr and notified to the user.
@@ -115,16 +113,15 @@ function notify {
 #
 function exitError() {
   notify "$1"
-  (>&2 echo "$1")
+  (echo >&2 "$1")
   exit 1
 }
 
-
 function parseArguments() {
   local arg_vector
-  IFS=' ' read -r -a arg_vector <<< "$@"
+  IFS=' ' read -r -a arg_vector <<<"$@"
 
-  for (( i=0; i<${#arg_vector[@]}; i++ )) ; do
+  for ((i = 0; i < ${#arg_vector[@]}; i++)); do
     arg="${arg_vector[i]}"
     nextIndex=$((i + 1))
 
@@ -145,7 +142,6 @@ function parseArguments() {
 
       i=$nextIndex # Jump other the player name index.
 
-    
     # Argument without prefix -> check for command
     else
       # Find and set the defined command.
@@ -167,22 +163,19 @@ function parseArguments() {
   fi
 }
 
-
 function detectPlayer_cmus() {
   [[ -z "$(command -v "$PLAYER_CMUS_TOOL")" ]] && return
   [[ -z "$(pgrep cmus)" ]] && return
-  "$PLAYER_CMUS_TOOL" -Q | grep 'stopped' &> /dev/null && return
+  "$PLAYER_CMUS_TOOL" -Q | grep 'stopped' &>/dev/null && return
   echo "$PLAYER_CMUS_NAME"
 }
 
-
 function detectPlayer_mpd() {
   [[ -z "$(command -v "$PLAYER_MPD_TOOL")" ]] && return
-  "$PLAYER_MPD_TOOL" &> /dev/null || return
-  "$PLAYER_MPD_TOOL" status | grep 'playing\|paused' &> /dev/null || return
+  "$PLAYER_MPD_TOOL" &>/dev/null || return
+  "$PLAYER_MPD_TOOL" status | grep 'playing\|paused' &>/dev/null || return
   echo "$PLAYER_MPD_NAME"
 }
-
 
 function detectPlayer() {
   [[ -n "$PLAYER_ACTIVE" ]] && return
@@ -198,7 +191,6 @@ function detectPlayer() {
   fi
 }
 
-
 # Print the header of this script as help.
 # The header ends with the first empty line.
 #
@@ -207,12 +199,10 @@ function help() {
   sed -e '/^$/,$d; s/^#//; s/^\!\/bin\/bash//' "$file"
 }
 
-
 function executeCommand() {
   [[ "$COMMAND_SELECTED" == "$COMMAND_HELP" ]] && help && exit 0
   eval "\$PLAYER_${PLAYER_ACTIVE^^}_TOOL \${PLAYER_${PLAYER_ACTIVE^^}_COMMANDS[$COMMAND_SELECTED]}"
 }
-
 
 # Getting started.
 set -e
