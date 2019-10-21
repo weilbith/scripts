@@ -1,8 +1,9 @@
-#youtube-dl -x --audio-format mp3 --audio-quality 0 $1
+command -v youtube-dl >/dev/null || {
+  echo "Missing the 'youtube-dl' command!"
+  exit 1
+}
 
-
-for var in "$@"
-do
-	youtube-dl -x --audio-format mp3 --audio-quality 0 $var
+for object in "$@"; do
+  echo "Download $object..."
+  youtube-dl -x --audio-format mp3 --audio-quality 0 "$object"
 done
-
